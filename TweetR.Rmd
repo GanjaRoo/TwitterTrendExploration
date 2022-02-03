@@ -1,0 +1,46 @@
+---
+title: "Twitter Trend Exploration"
+author: "GanjaRoo"
+output: html_document
+---
+
+```{r warning=FALSE, message=FALSE, results='none', echo=FALSE}
+#Load Packages
+library(tidyverse) #our bread
+library(lubridate) #working with dates
+library(scales) #date format function
+library(rtweet) #extracting Tweets
+```
+
+```{r GetTicker, warning=FALSE, message=FALSE, results='none', echo=FALSE}
+#place desired hash tags inside the " "
+hashtag <- "#NFTcommunity"
+
+#retrieves tweets from the last 6-9 days that match the submitted query
+tweets <- search_tweets(q = hashtag, #calls whatever was assigned to hash tag variable
+                        n = 18000, #18000 is the max
+                        include_rts = FALSE, #exclude re-Tweets
+                        `-filter` = "replies", #exclude replies
+                        lang = "en") #only english
+```
+
+```{r PlotFrequency, warning=FALSE, message=FALSE, results='none', echo=FALSE}
+frequency <- "days" #frequency can be set to secs, minutes, hours, days, weeks, months, years, etc.
+
+#plot frequency
+ts_plot(tweets, frequency) +
+  labs(title = str_c("Frequency of ", hashtag, " tweets"),
+       subtitle = paste0(format(min(tweets$created_at), "%d %B %Y"), " to ", format(max(tweets$created_at),"%d %B %Y")),
+       caption = "Data collected from Twitter via rtweet",
+       x = "Date", 
+       y = "Frequency") +
+  theme_classic() + 
+  theme(plot.subtitle = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0.5))
+```
+
+```{r Export Data, warning=FALSE, message=FALSE, results='none', echo=FALSE}
+#export raw Tweets to .CSV
+#member to write filename + .csv at the end
+write.csv(tweets,file = file.choose(new = T))
+```
